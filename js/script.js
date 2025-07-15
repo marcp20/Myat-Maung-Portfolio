@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Current year in footer
     document.getElementById('year').textContent = new Date().getFullYear();
     
-    // Form submission
+    // FORM SUBMISSION WITH EMAIL INTEGRATION (Formspree)
     const contactForm = document.getElementById('contactForm');
     if (contactForm) {
         contactForm.addEventListener('submit', function(e) {
@@ -65,9 +65,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Form submission logic would go here
-            alert('Message sent successfully!');
-            this.reset();
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            // Replace with your actual Formspree endpoint
+            const formspreeEndpoint = 'https://formspree.io/f/mkgznoer';
+            
+            fetch(formspreeEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: name.value,
+                    email: email.value,
+                    message: message.value
+                }),
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('Failed to send message');
+                }
+            })
+            .then(data => {
+                alert('Message sent successfully!');
+                this.reset();
+            })
+            .catch(error => {
+                alert('There was a problem sending your message. Please try again later.');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+            });
         });
     }
     
